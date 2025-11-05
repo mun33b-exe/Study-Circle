@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_circle/constants/colors.dart';
-import 'package:study_circle/services/authservices.dart';
 import 'package:study_circle/provider/authprovider.dart'; // existing provider file
 
 class Login extends StatelessWidget {

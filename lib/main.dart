@@ -18,7 +18,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
       ],
-      child: MaterialApp(home: const Login()),
+      child: MyApp(),
     ),
   );
 }
@@ -41,10 +41,9 @@ class MyApp extends StatelessWidget {
           textTheme: GoogleFonts.ralewayTextTheme(),
         ),
         routes: {
-          '/': (context)=>Launcher(),
-          '/login': (context)=>Launcher(),
-          '/signup': (context)=>SignUp(),
-
+          '/': (context) => Launcher(),
+          '/login': (context) => Login(),
+          '/signup': (context) => SignUp(),
         },
       ),
     );
