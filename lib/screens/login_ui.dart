@@ -2,19 +2,52 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sign_in_button/sign_in_button.dart';
 import 'package:study_circle/constants/colors.dart';
-import 'package:study_circle/services/authservices.dart';
-import 'package:study_circle/provider/authprovider.dart'; // existing provider file
+import 'package:study_circle/provider/authprovider.dart';
 
-class Login extends StatelessWidget {
+class Login extends StatefulWidget {
   const Login({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Get provider instance (creates if parent provided it).
-    final auth = Provider.of<AuthProvider>(context);
+  State<Login> createState() => _LoginState();
+}
 
-    // Use MediaQuery for sizing so this screen works in split-screen / multi-window modes
+class _LoginState extends State<Login> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late TextEditingController emailController;
+  late TextEditingController passwordController;
+  bool _obscurePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) return 'Please enter your email';
+    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    if (!emailRegex.hasMatch(value)) return 'Please enter a valid email';
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) return 'Please enter your password';
+    if (value.length < 6) return 'Password must be at least 6 characters';
+    return null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final Size mq = MediaQuery.of(context).size;
     final double horizontalPadding = mq.width * 0.05;
     double buttonWidth = mq.width * 0.9;
@@ -23,6 +56,7 @@ class Login extends StatelessWidget {
     final double borderRadius = 40.0;
 
     return Scaffold(
+      appBar: AppBar(backgroundColor: AppColors().baseColor),
       backgroundColor: AppColors().baseColor,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -31,7 +65,7 @@ class Login extends StatelessWidget {
             vertical: 12.0,
           ),
           child: Form(
-            // Use provider controllers instead of local controllers
+            key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -46,9 +80,10 @@ class Login extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 10.0),
-                // Email field (uses provider controller)
+                // Email field
                 TextFormField(
-                  controller: auth.emailController,
+                  controller: emailController,
+                  validator: _validateEmail,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     hintText: 'Email',
@@ -61,22 +96,38 @@ class Login extends StatelessWidget {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.red, width: 1),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.red, width: 1),
+                    ),
                   ),
                   style: TextStyle(fontSize: 16.0),
                 ),
                 SizedBox(height: 12.0),
-                // Password field (uses provider controller)
+                // Password field
                 TextFormField(
-                  controller: auth.passwordController,
+                  controller: passwordController,
+                  validator: _validatePassword,
                   keyboardType: TextInputType.visiblePassword,
-                  obscureText: true,
+                  obscureText: _obscurePassword,
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: AppColors().whiteColor,
-                    suffixIcon: Icon(
-                      Icons.visibility_off,
-                      color: Colors.grey,
-                      size: 20.0,
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.grey,
+                        size: 20.0,
+                      ),
                     ),
                     hintText: 'Password',
                     contentPadding: EdgeInsets.symmetric(
@@ -86,6 +137,14 @@ class Login extends StatelessWidget {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.red, width: 1),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.red, width: 1),
+                    ),
                   ),
                   style: TextStyle(fontSize: 16.0),
                 ),
@@ -94,65 +153,91 @@ class Login extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text("Don't have an account?"),
-                    TextButton(onPressed: () {}, child: Text("Sign Up")),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/signup');
+                      },
+                      child: Text("Sign Up"),
+                    ),
                   ],
                 ),
                 SizedBox(height: 20.0),
-                Align(
-                  alignment: Alignment.center,
-                  child: Container(
-                    height: buttonHeight,
-                    width: buttonWidth,
-                    decoration: BoxDecoration(
-                      border: Border.all(),
-                      borderRadius: BorderRadius.circular(borderRadius),
-                    ),
-                    child: TextButton(
-                      onPressed: auth.isLoading
-                          ? null
-                          : () async {
-                              // Clear previous error
-                              auth.clearError();
+                Consumer<AuthProvider>(
+                  builder: (context, authProvider, _) {
+                    return Align(
+                      alignment: Alignment.center,
+                      child: Container(
+                        height: buttonHeight,
+                        width: buttonWidth,
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(borderRadius),
+                        ),
+                        child: authProvider.isLoading
+                            ? Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    AppColors().baseColor,
+                                  ),
+                                ),
+                              )
+                            : TextButton(
+                                onPressed: () async {
+                                  if (_formKey.currentState!.validate()) {
+                                    final success = await authProvider.signIn(
+                                      emailController.text.trim(),
+                                      passwordController.text,
+                                    );
 
-                              // Attempt login via provider
-                              final success = await auth.login();
-
-                              if (!success) {
-                                // Show provider error message (if any)
-                                final msg = auth.errorMessage ?? 'Login failed';
-                                ScaffoldMessenger.of(
-                                  context,
-                                ).showSnackBar(SnackBar(content: Text(msg)));
-                              } else {
-                                // On success you can navigate to dashboard/home
-                                // Navigator.pushReplacementNamed(context, '/dashboard');
-                              }
-                            },
-                      child: auth.isLoading
-                          ? SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Text(
-                              "Login",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
+                                    if (!success && mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            authProvider.errorMessage ?? 'Login failed',
+                                          ),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  }
+                                },
+                                child: Text(
+                                  "Login",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
-                            ),
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 ),
-                // Show inline error if present
-                if (auth.errorMessage != null) ...[
-                  SizedBox(height: 12),
-                  Text(
-                    auth.errorMessage!,
-                    style: TextStyle(color: Colors.red),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+                SizedBox(height: 20.0),
+                // Google Sign-In Button
+                Consumer<AuthProvider>(
+                  builder: (context, authProvider, _) {
+                    return Align(
+                      alignment: Alignment.center,
+                      child: SignInButton(
+                        Buttons.google,
+                        onPressed: () async {
+                          final success = await authProvider.signInWithGoogle();
+                          if (!success && mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  authProvider.errorMessage ?? 'Google sign-in failed',
+                                ),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
           ),

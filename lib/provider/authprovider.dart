@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:study_circle/services/authservices.dart';
+import 'package:study_circle/services/firebase_auth_service.dart';
 
-/// Provider for authentication-related UI/state used by login/register screens.
-/// - Holds TextEditingControllers to keep controller lifecycle in one place.
-/// - Exposes loading and error state for UI to react to.
-/// - Provides a `login` helper that wraps the Authservices login call.
+/// AuthProvider manages authentication state and operations.
+/// Extends ChangeNotifier for reactive state management with Provider.
 class AuthProvider extends ChangeNotifier {
-  // Controllers owned by the provider so screens don't need to recreate/dispose them.
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  final FirebaseAuthService _authService;
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -16,9 +12,17 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
+  AuthProvider(this._authService);
+
   /// Sets loading state and notifies listeners.
   void _setLoading(bool value) {
     _isLoading = value;
+    notifyListeners();
+  }
+
+  /// Sets error message and notifies listeners.
+  void _setError(String? message) {
+    _errorMessage = message;
     notifyListeners();
   }
 
@@ -28,39 +32,95 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Attempts to log the user in using Authservices.
-  /// Returns true on success, false on failure. Error message is available via [errorMessage].
-  Future<bool> login() async {
-    final email = emailController.text.trim();
-    final password = passwordController.text;
-
-    // Basic validation
+  /// Sign in with email and password.
+  /// Returns true on success, false on failure.
+  /// Error message is available via [errorMessage].
+  Future<bool> signIn(String email, String password) async {
     if (email.isEmpty || password.isEmpty) {
-      _errorMessage = 'Please enter both email and password.';
-      notifyListeners();
+      _setError('Please enter both email and password.');
       return false;
     }
 
     _setLoading(true);
+    _setError(null);
+
     try {
-      // Delegates actual Firebase auth to Authservices.
-      await Authservices().login(email, password);
-      _errorMessage = null;
+      await _authService.signInWithEmail(email, password);
+      _setLoading(false);
       return true;
     } catch (e) {
-      // Capture error for UI; keep message concise.
-      _errorMessage = e.toString();
-      return false;
-    } finally {
+      _setError(e.toString());
       _setLoading(false);
+      return false;
     }
   }
 
-  /// Dispose controllers when provider is removed.
-  @override
-  void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
-    super.dispose();
+  /// Sign up with email, password, and profile information.
+  /// Returns true on success, false on failure.
+  /// Error message is available via [errorMessage].
+  Future<bool> signUp(
+    String email,
+    String password,
+    String name,
+    String department,
+    int semester,
+  ) async {
+    if (email.isEmpty ||
+        password.isEmpty ||
+        name.isEmpty ||
+        department.isEmpty) {
+      _setError('Please fill in all required fields.');
+      return false;
+    }
+
+    _setLoading(true);
+    _setError(null);
+
+    try {
+      await _authService.signUpWithEmail(
+        email,
+        password,
+        name,
+        department,
+        semester,
+      );
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _setError(e.toString());
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  /// Sign in with Google.
+  /// Returns true on success, false on failure.
+  Future<bool> signInWithGoogle() async {
+    _setLoading(true);
+    _setError(null);
+
+    try {
+      await _authService.signInWithGoogle();
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _setError(e.toString());
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  /// Sign out the current user.
+  Future<void> signOut() async {
+    _setLoading(true);
+    _setError(null);
+
+    try {
+      await _authService.signOut();
+      _setLoading(false);
+    } catch (e) {
+      _setError(e.toString());
+      _setLoading(false);
+    }
   }
 }
