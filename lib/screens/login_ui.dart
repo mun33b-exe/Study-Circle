@@ -199,8 +199,26 @@ class _LoginState extends State<Login> {
                                         const SnackBar(
                                           content: Text('Login successful!'),
                                           backgroundColor: Colors.green,
+                                          duration: Duration(
+                                            milliseconds: 1500,
+                                          ),
                                         ),
                                       );
+
+                                      // Small delay to ensure auth state is updated
+                                      await Future.delayed(
+                                        const Duration(milliseconds: 500),
+                                      );
+
+                                      if (mounted) {
+                                        // Navigate to main screen by popping all routes and pushing home
+                                        Navigator.of(
+                                          context,
+                                        ).pushNamedAndRemoveUntil(
+                                          '/',
+                                          (route) => false,
+                                        );
+                                      }
                                     } else if (!success && mounted) {
                                       ScaffoldMessenger.of(
                                         context,

@@ -314,9 +314,27 @@ class _SignUpState extends State<SignUp> {
                                             content: Text(
                                               'Sign up successful!',
                                             ),
+                                            backgroundColor: Colors.green,
+                                            duration: Duration(
+                                              milliseconds: 1500,
+                                            ),
                                           ),
                                         );
-                                        Navigator.pushNamed(context, '/login');
+
+                                        // Small delay to ensure auth state is updated
+                                        await Future.delayed(
+                                          const Duration(milliseconds: 500),
+                                        );
+
+                                        if (mounted) {
+                                          // Navigate to main screen after successful signup
+                                          Navigator.of(
+                                            context,
+                                          ).pushNamedAndRemoveUntil(
+                                            '/',
+                                            (route) => false,
+                                          );
+                                        }
                                       } else {
                                         if (!mounted) return;
                                         ScaffoldMessenger.of(
