@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,6 +9,7 @@ import 'package:study_circle/screens/sign_up.dart';
 import 'package:study_circle/screens/login_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:study_circle/provider/authprovider.dart';
+import 'package:study_circle/services/firebase_auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,9 +18,21 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
+        // Firebase Auth Service provider
+        Provider<FirebaseAuthService>(create: (_) => FirebaseAuthService()),
+        // Auth Provider
+        ChangeNotifierProvider<AuthProvider>(
+          create: (context) =>
+              AuthProvider(context.read<FirebaseAuthService>()),
+        ),
+        // Stream provider for auth state changes
+        StreamProvider<User?>(
+          create: (context) =>
+              context.read<FirebaseAuthService>().authStateChanges,
+          initialData: null,
+        ),
       ],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
@@ -26,7 +40,6 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
@@ -40,10 +53,10 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
           textTheme: GoogleFonts.ralewayTextTheme(),
         ),
+        home: const Launcher(),
         routes: {
-          '/': (context) => Launcher(),
-          '/login': (context) => Login(),
-          '/signup': (context) => SignUp(),
+          '/login': (context) => const Login(),
+          '/signup': (context) => const SignUp(),
         },
       ),
     );
