@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:study_circle/firebase_options.dart';
 import 'package:study_circle/screens/launcher.dart';
+import 'package:study_circle/screens/sign_up.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +29,12 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
           textTheme: GoogleFonts.ralewayTextTheme(),
         ),
-        home: Launcher(),
+        routes: {
+          '/': (context)=>Launcher(),
+          '/login': (context)=>Launcher(),
+          '/signup': (context)=>SignUp(),
+
+        },
       ),
     );
   }

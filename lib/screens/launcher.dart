@@ -55,7 +55,9 @@ class _LauncherState extends State<Launcher> {
                     borderRadius: BorderRadius.circular(40.r),
                   ),
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/signup');
+                    },
                     child: Text(
                       "Create an account",
                       style: TextStyle(
@@ -77,7 +79,9 @@ class _LauncherState extends State<Launcher> {
                     borderRadius: BorderRadius.circular(40.r),
                   ),
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/signup');
+                    },
                     child: Text(
                       "Login",
                       style: TextStyle(
