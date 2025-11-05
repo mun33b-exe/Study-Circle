@@ -5,11 +5,22 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:study_circle/firebase_options.dart';
 import 'package:study_circle/screens/launcher.dart';
 import 'package:study_circle/screens/sign_up.dart';
+import 'package:study_circle/screens/login_ui.dart';
+import 'package:provider/provider.dart';
+import 'package:study_circle/provider/authprovider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
+      ],
+      child: MaterialApp(home: const Login()),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
