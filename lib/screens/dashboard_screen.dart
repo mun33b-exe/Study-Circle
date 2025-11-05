@@ -2,14 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:study_circle/constants/colors.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:study_circle/provider/study_group_provider.dart';
+import 'package:study_circle/models/study_group.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
   @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Ensure the provider is listening to groups so we can filter locally
+    final provider = context.read<StudyGroupProvider>();
+    provider.listenAll();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // We will get the user's name from AuthProvider later
-    String userName = "Muneeb"; // Use dummy data for now
+    // We will get the user's name from FirebaseAuth or AuthProvider later
+    final userName = FirebaseAuth.instance.currentUser?.displayName ?? 'You';
+    final uid = FirebaseAuth.instance.currentUser?.uid;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -151,57 +169,98 @@ class DashboardScreen extends StatelessWidget {
             SizedBox(height: 25.h),
 
             // === SECTION 3: My Active Study Groups ===
-            // (Inspired by 'Popular Jobs' vertical list)
+            // Show groups where the current user is the creator or a member
             Text(
               "My Active Study Groups",
               style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 15.h),
-            ListView.builder(
-              itemCount: 2, // Dummy data
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) {
-                final groupNames = ["CS101 Final Review", "Biology Lab Group"];
-                final departments = ["Computer Science", "Biology"];
-                final memberCounts = ["5/10", "7/8"];
+            Consumer<StudyGroupProvider>(
+              builder: (context, provider, _) {
+                if (provider.isLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (provider.errorMessage != null) {
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Error loading your groups: ${provider.errorMessage}',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  );
+                }
 
-                return Card(
-                  elevation: 0,
-                  color: AppColors.cardBackground,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                    side: BorderSide(color: AppColors.borderColor, width: 1),
-                  ),
-                  margin: EdgeInsets.only(bottom: 12.h),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.blue.shade100,
-                      child: Text(
-                        groupNames[index].split(' ')[0].substring(0, 2),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue.shade700,
+                final List<StudyGroup> groups = provider.groups;
+                final myGroups = (uid == null)
+                    ? <StudyGroup>[]
+                    : groups
+                          .where(
+                            (g) =>
+                                g.creatorId == uid || g.members.contains(uid),
+                          )
+                          .toList();
+
+                if (myGroups.isEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Text('You have no active study groups.'),
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: myGroups.length,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    final g = myGroups[index];
+                    return Card(
+                      elevation: 0,
+                      color: AppColors.cardBackground,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        side: BorderSide(
+                          color: AppColors.borderColor,
+                          width: 1,
                         ),
                       ),
-                    ),
-                    title: Text(
-                      groupNames[index],
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      departments[index],
-                      style: TextStyle(fontSize: 12.sp),
-                    ),
-                    trailing: Text(
-                      memberCounts[index],
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                      margin: EdgeInsets.only(bottom: 12.h),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.blue.shade100,
+                          child: Text(
+                            (g.name.isNotEmpty ? g.name.split(' ')[0] : 'G')
+                                .substring(0, 2)
+                                .toUpperCase(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue.shade700,
+                            ),
+                          ),
+                        ),
+                        title: Text(
+                          g.name,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          '${g.courseName} • ${g.courseCode}',
+                          style: TextStyle(fontSize: 12.sp),
+                        ),
+                        trailing: Text(
+                          '${g.members.length}/${g.maxMembers}',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          '/groups/detail',
+                          arguments: g,
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 );
               },
             ),
