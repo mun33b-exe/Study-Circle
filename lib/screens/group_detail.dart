@@ -125,7 +125,9 @@ class GroupDetailScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Text('Max Members: ${group.maxMembers}'),
             const SizedBox(height: 8),
-            Text('Schedule: ${group.schedule}'),
+            Text(
+              'Schedule: ${group.schedule.day}/${group.schedule.month}/${group.schedule.year} at ${group.schedule.hour.toString().padLeft(2, '0')}:${group.schedule.minute.toString().padLeft(2, '0')}',
+            ),
             const SizedBox(height: 8),
             Text('Location: ${group.location}'),
             const SizedBox(height: 12),

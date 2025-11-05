@@ -8,7 +8,7 @@ class StudyGroup {
   final String description;
   final List<String> topics;
   final int maxMembers;
-  final String schedule;
+  final DateTime schedule;
   final String location;
   final bool isPublic;
   final String creatorId;
@@ -31,6 +31,24 @@ class StudyGroup {
     required this.createdAt,
   });
 
+  static DateTime _parseSchedule(dynamic scheduleData) {
+    if (scheduleData == null) return DateTime.now();
+
+    // If it's already a Timestamp, convert to DateTime
+    if (scheduleData is Timestamp) {
+      return scheduleData.toDate();
+    }
+
+    // If it's a String (old data), try to parse or return current time
+    if (scheduleData is String) {
+      // Return a default DateTime for old string data
+      // You may want to delete old records or migrate them manually
+      return DateTime.now();
+    }
+
+    return DateTime.now();
+  }
+
   factory StudyGroup.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
     return StudyGroup(
@@ -43,7 +61,7 @@ class StudyGroup {
       maxMembers: (data['maxMembers'] ?? 0) is int
           ? data['maxMembers']
           : int.tryParse('${data['maxMembers']}') ?? 0,
-      schedule: data['schedule'] ?? '',
+      schedule: _parseSchedule(data['schedule']),
       location: data['location'] ?? '',
       isPublic: data['isPublic'] ?? true,
       creatorId: data['creatorId'] ?? '',
@@ -60,7 +78,7 @@ class StudyGroup {
       'description': description,
       'topics': topics,
       'maxMembers': maxMembers,
-      'schedule': schedule,
+      'schedule': Timestamp.fromDate(schedule),
       'location': location,
       'isPublic': isPublic,
       'creatorId': creatorId,

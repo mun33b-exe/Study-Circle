@@ -71,10 +71,77 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
           Expanded(
             child: Consumer<StudyGroupProvider>(
               builder: (context, provider, _) {
-                if (provider.isLoading)
+                if (provider.isLoading) {
                   return const Center(child: CircularProgressIndicator());
-                if (provider.errorMessage != null)
-                  return Center(child: Text(provider.errorMessage!));
+                }
+
+                if (provider.errorMessage != null) {
+                  final error = provider.errorMessage!;
+                  final isIndexError =
+                      error.contains('index') ||
+                      error.contains('FAILED_PRECONDITION');
+
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            isIndexError ? Icons.warning : Icons.error,
+                            color: Colors.orange,
+                            size: 48,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            isIndexError
+                                ? 'Database Index Required'
+                                : 'Error Loading Groups',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            isIndexError
+                                ? 'Click the link in the error message to create the required Firestore index, or toggle to "Show Public" mode.'
+                                : error,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          const SizedBox(height: 16),
+                          if (isIndexError)
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  showPublic = true;
+                                  context
+                                      .read<StudyGroupProvider>()
+                                      .listenAll();
+                                });
+                              },
+                              child: const Text('Switch to Public Groups'),
+                            ),
+                          TextButton(
+                            onPressed: () {
+                              provider.errorMessage = null;
+                              final uid =
+                                  FirebaseAuth.instance.currentUser?.uid;
+                              if (showPublic) {
+                                provider.listenAll();
+                              } else if (uid != null) {
+                                provider.listenByCreator(uid);
+                              }
+                            },
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
                 final List<StudyGroup> groups = provider.groups;
                 final filtered = groups.where((g) {
                   final matchesSearch = g.name.toLowerCase().contains(

@@ -36,12 +36,13 @@ class StudyGroupService {
     return _db
         .collection(collection)
         .where('creatorId', isEqualTo: creatorId)
-        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map(
-          (QuerySnapshot<Map<String, dynamic>> snap) =>
-              snap.docs.map((d) => StudyGroup.fromDoc(d)).toList(),
-        );
+        .map((QuerySnapshot<Map<String, dynamic>> snap) {
+          final groups = snap.docs.map((d) => StudyGroup.fromDoc(d)).toList();
+          // Sort in-app to avoid needing a Firestore composite index
+          groups.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return groups;
+        });
   }
 
   Future<StudyGroup?> getGroupById(String id) async {
