@@ -94,6 +94,26 @@ class StudyGroupProvider extends ChangeNotifier {
     }
   }
 
+  /// Stream for ALL groups (for DiscoveryScreen)
+  Stream<List<StudyGroup>> get allGroups => _service.getAllGroupsStream();
+
+  /// Stream for a single group (for GroupDetailScreen)
+  Stream<StudyGroup> getGroupById(String groupId) =>
+      _service.getGroupByIdStream(groupId);
+
+  /// Enhanced join group with validation and messages
+  Future<String> joinGroupWithValidation(String groupId, String uid) async {
+    _setLoading(true);
+    try {
+      String message = await _service.joinGroupWithValidation(groupId, uid);
+      _setLoading(false);
+      return message; // Return the success/error message
+    } catch (e) {
+      _setLoading(false);
+      return "Error: $e";
+    }
+  }
+
   Future<bool> joinGroup(String groupId, String userId) async {
     try {
       await _service.joinGroup(groupId, userId);
@@ -156,6 +176,12 @@ class StudyGroupProvider extends ChangeNotifier {
       errorMessage = e.toString();
       notifyListeners();
     }
+  }
+
+  /// Set loading state helper method
+  void _setLoading(bool loading) {
+    isLoading = loading;
+    notifyListeners();
   }
 
   @override

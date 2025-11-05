@@ -142,4 +142,54 @@ class StudyGroupService {
         .doc(requestId);
     await reqRef.delete();
   }
+
+  /// Get a LIVE stream of ALL groups for the Discovery screen
+  Stream<List<StudyGroup>> getAllGroupsStream() {
+    return _db.collection(collection).snapshots().map((snapshot) {
+      return snapshot.docs
+          .map((doc) => StudyGroup.fromDoc(doc))
+          .toList();
+    });
+  }
+
+  /// Get a LIVE stream of a SINGLE group for the details page
+  Stream<StudyGroup> getGroupByIdStream(String groupId) {
+    return _db
+        .collection(collection)
+        .doc(groupId)
+        .snapshots()
+        .map((doc) => StudyGroup.fromDoc(doc));
+  }
+
+  /// Enhanced join group method with business logic
+  Future<String> joinGroupWithValidation(String groupId, String uid) async {
+    final docRef = _db.collection(collection).doc(groupId);
+    
+    return _db.runTransaction((transaction) async {
+      final snapshot = await transaction.get(docRef);
+      if (!snapshot.exists) {
+        throw Exception("Group does not exist!");
+      }
+
+      final group = StudyGroup.fromDoc(snapshot);
+
+      // Business Logic Checks
+      if (group.members.contains(uid)) {
+        return "You are already a member of this group.";
+      }
+      if (group.members.length >= group.maxMembers) {
+        return "This group is already full.";
+      }
+      if (!group.isPublic) {
+        // Private group logic - deny for now
+        return "This is a private group. Please request an invite.";
+      }
+
+      // All checks passed. Add the user.
+      transaction.update(docRef, {
+        'members': FieldValue.arrayUnion([uid])
+      });
+      return "Successfully joined ${group.name}!";
+    });
+  }
 }

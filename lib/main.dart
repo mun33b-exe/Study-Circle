@@ -76,7 +76,7 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => const SignUp(),
         '/my-groups': (context) => const MyGroupsScreen(),
         '/groups/create': (context) => const CreateGroupScreen(),
-        '/groups/detail': (context) => const GroupDetailScreen(),
+        // '/groups/detail': (context) => const GroupDetailScreen(),
       },
     );
   }
