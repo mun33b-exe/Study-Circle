@@ -111,63 +111,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             SizedBox(height: 25.h),
 
-            // === SECTION 2: Upcoming Study Sessions ===
-            // (Inspired by 'Popular videos' horizontal list)
-            Text(
-              "My Upcoming Study Sessions",
-              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 15.h),
-            SizedBox(
-              height: 180.h,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: 3, // Dummy data
-                itemBuilder: (context, index) {
-                  return Container(
-                    width: 150.w,
-                    margin: EdgeInsets.only(right: 15.w),
-                    decoration: BoxDecoration(
-                      color: AppColors.cardBackground,
-                      borderRadius: BorderRadius.circular(15.r),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(12.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Session Title",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            "CS101 - Algorithms",
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            "Nov ${5 + index}, 3:00 PM",
-                            style: TextStyle(fontSize: 12.sp),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            SizedBox(height: 25.h),
-
             // === SECTION 3: My Active Study Groups ===
             // Show groups where the current user is the creator or a member
             Text(

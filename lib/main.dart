@@ -9,7 +9,6 @@ import 'package:study_circle/screens/launcher.dart';
 import 'package:study_circle/screens/sign_up.dart';
 import 'package:study_circle/screens/login_ui.dart';
 import 'package:study_circle/screens/create_group.dart';
-import 'package:study_circle/screens/group_detail.dart';
 import 'package:study_circle/screens/my_groups_screen.dart';
 import 'package:study_circle/provider/study_group_provider.dart';
 import 'package:study_circle/services/study_group_service.dart';

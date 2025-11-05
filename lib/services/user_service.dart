@@ -63,6 +63,7 @@ class UserService {
 
       await userRef.set(userData, SetOptions(merge: true));
     } catch (e) {
+      // ignore: avoid_print
       print('Error creating/updating user profile: $e');
     }
   }
