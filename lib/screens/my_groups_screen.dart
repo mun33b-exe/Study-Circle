@@ -150,8 +150,9 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
                   final matchesPublic = showPublic ? g.isPublic : true;
                   return matchesSearch && matchesPublic;
                 }).toList();
-                if (filtered.isEmpty)
+                if (filtered.isEmpty) {
                   return const Center(child: Text('No groups found'));
+                }
                 return ListView.builder(
                   itemCount: filtered.length,
                   itemBuilder: (context, index) {
