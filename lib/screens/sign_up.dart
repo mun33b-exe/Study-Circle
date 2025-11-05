@@ -122,8 +122,8 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors().baseColor,
-      appBar: AppBar(backgroundColor: AppColors().baseColor),
+      backgroundColor: AppColors.baseColor,
+      appBar: AppBar(backgroundColor: AppColors.baseColor),
       body: SizedBox(
         height: double.infinity,
         width: double.infinity,
@@ -284,7 +284,7 @@ class _SignUpState extends State<SignUp> {
                               ? Center(
                                   child: CircularProgressIndicator(
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                      AppColors().baseColor,
+                                      AppColors.baseColor,
                                     ),
                                   ),
                                 )

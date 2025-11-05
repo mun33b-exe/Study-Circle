@@ -9,7 +9,7 @@ import 'package:study_circle/screens/sign_up.dart';
 import 'package:study_circle/screens/login_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:study_circle/provider/authprovider.dart';
-import 'package:study_circle/services/firebase_auth_service.dart';
+import 'package:study_circle/services/authservices.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,16 +19,14 @@ void main() async {
     MultiProvider(
       providers: [
         // Firebase Auth Service provider
-        Provider<FirebaseAuthService>(create: (_) => FirebaseAuthService()),
+        Provider<Authservices>(create: (_) => Authservices()),
         // Auth Provider
         ChangeNotifierProvider<AuthProvider>(
-          create: (context) =>
-              AuthProvider(context.read<FirebaseAuthService>()),
+          create: (context) => AuthProvider(context.read<Authservices>()),
         ),
         // Stream provider for auth state changes
         StreamProvider<User?>(
-          create: (context) =>
-              context.read<FirebaseAuthService>().authStateChanges,
+          create: (context) => context.read<Authservices>().authStateChanges,
           initialData: null,
         ),
       ],

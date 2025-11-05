@@ -57,8 +57,8 @@ class _LoginState extends State<Login> {
     final double borderRadius = 40.0;
 
     return Scaffold(
-      appBar: AppBar(backgroundColor: AppColors().baseColor),
-      backgroundColor: AppColors().baseColor,
+      appBar: AppBar(backgroundColor: AppColors.baseColor),
+      backgroundColor: AppColors.baseColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
@@ -89,7 +89,7 @@ class _LoginState extends State<Login> {
                   decoration: InputDecoration(
                     hintText: 'Email',
                     filled: true,
-                    fillColor: AppColors().whiteColor,
+                    fillColor: AppColors.whiteColor,
                     contentPadding: EdgeInsets.symmetric(
                       vertical: 14.0,
                       horizontal: 12.0,
@@ -117,7 +117,7 @@ class _LoginState extends State<Login> {
                   obscureText: _obscurePassword,
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: AppColors().whiteColor,
+                    fillColor: AppColors.whiteColor,
                     suffixIcon: IconButton(
                       onPressed: () {
                         setState(() {
@@ -180,7 +180,7 @@ class _LoginState extends State<Login> {
                             ? Center(
                                 child: CircularProgressIndicator(
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    AppColors().baseColor,
+                                    AppColors.baseColor,
                                   ),
                                 ),
                               )

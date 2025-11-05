@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:study_circle/services/firebase_auth_service.dart';
+import 'package:study_circle/services/authservices.dart';
 
 /// AuthProvider manages authentication state and operations.
 /// Extends ChangeNotifier for reactive state management with Provider.
 class AuthProvider extends ChangeNotifier {
-  final FirebaseAuthService _authService;
+  final Authservices _authService;
 
   bool _isLoading = false;
   String? _errorMessage;

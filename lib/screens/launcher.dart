@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:study_circle/constants/colors.dart';
+import 'package:study_circle/screens/main_navigation_screen.dart';
 
 class Launcher extends StatelessWidget {
   const Launcher({super.key});
@@ -12,10 +13,9 @@ class Launcher extends StatelessWidget {
     // Watch the auth state from StreamProvider
     final user = context.watch<User?>();
 
-    // If user is authenticated, navigate to dashboard/home
-    // For now, we'll show a simple home screen
+    // If user is authenticated, navigate to main navigation screen
     if (user != null) {
-      return HomeScreen(user: user);
+      return const MainNavigationScreen();
     }
 
     // If user is not authenticated, show the launcher screen
@@ -36,7 +36,7 @@ class _LauncherScreenState extends State<_LauncherScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors().baseColor,
+      backgroundColor: AppColors.baseColor,
       body: SizedBox(
         height: double.infinity,
         width: double.infinity,
@@ -116,41 +116,6 @@ class _LauncherScreenState extends State<_LauncherScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-// Simple home screen placeholder for authenticated users
-class HomeScreen extends StatelessWidget {
-  final User user;
-
-  const HomeScreen({super.key, required this.user});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors().baseColor,
-        title: const Text('Dashboard'),
-      ),
-      backgroundColor: AppColors().baseColor,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Welcome, ${user.email}!', style: TextStyle(fontSize: 18.sp)),
-            SizedBox(height: 20.h),
-            ElevatedButton(
-              onPressed: () async {
-                // Sign out
-                // Use context to access AuthProvider and call signOut
-                // This will update the StreamProvider and navigate back to launcher
-              },
-              child: const Text('Sign Out'),
-            ),
-          ],
         ),
       ),
     );
