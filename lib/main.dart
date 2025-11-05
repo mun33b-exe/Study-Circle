@@ -7,6 +7,11 @@ import 'package:study_circle/firebase_options.dart';
 import 'package:study_circle/screens/launcher.dart';
 import 'package:study_circle/screens/sign_up.dart';
 import 'package:study_circle/screens/login_ui.dart';
+import 'package:study_circle/screens/create_group.dart';
+import 'package:study_circle/screens/group_detail.dart';
+import 'package:study_circle/screens/my_groups_screen.dart';
+import 'package:study_circle/provider/study_group_provider.dart';
+import 'package:study_circle/services/study_group_service.dart';
 import 'package:provider/provider.dart';
 import 'package:study_circle/provider/authprovider.dart';
 import 'package:study_circle/services/authservices.dart';
@@ -24,6 +29,13 @@ void main() async {
         providers: [
           // Firebase Auth Service provider
           Provider<Authservices>(create: (_) => Authservices()),
+          // StudyGroup service provider
+          Provider<StudyGroupService>(create: (_) => StudyGroupService()),
+          // StudyGroup provider
+          ChangeNotifierProvider<StudyGroupProvider>(
+            create: (context) =>
+                StudyGroupProvider(context.read<StudyGroupService>()),
+          ),
           // Auth Provider
           ChangeNotifierProvider<AuthProvider>(
             create: (context) => AuthProvider(context.read<Authservices>()),
@@ -56,6 +68,9 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const Login(),
         '/signup': (context) => const SignUp(),
+        '/my-groups': (context) => const MyGroupsScreen(),
+        '/groups/create': (context) => const CreateGroupScreen(),
+        '/groups/detail': (context) => const GroupDetailScreen(),
       },
     );
   }
