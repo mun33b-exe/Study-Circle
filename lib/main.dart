@@ -22,11 +22,13 @@ void main() async {
         Provider<FirebaseAuthService>(create: (_) => FirebaseAuthService()),
         // Auth Provider
         ChangeNotifierProvider<AuthProvider>(
-          create: (context) => AuthProvider(context.read<FirebaseAuthService>()),
+          create: (context) =>
+              AuthProvider(context.read<FirebaseAuthService>()),
         ),
         // Stream provider for auth state changes
         StreamProvider<User?>(
-          create: (context) => context.read<FirebaseAuthService>().authStateChanges,
+          create: (context) =>
+              context.read<FirebaseAuthService>().authStateChanges,
           initialData: null,
         ),
       ],

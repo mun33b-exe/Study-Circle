@@ -81,8 +81,10 @@ class FirebaseAuthService {
 
       if (user != null) {
         // Check if user is new
-        final userDoc =
-            await _firestore.collection('users').doc(user.uid).get();
+        final userDoc = await _firestore
+            .collection('users')
+            .doc(user.uid)
+            .get();
         if (!userDoc.exists) {
           // Create new user document for new Google sign-in users
           await _createUserDocument(
@@ -106,10 +108,7 @@ class FirebaseAuthService {
   /// Sign out
   Future<void> signOut() async {
     try {
-      await Future.wait([
-        _auth.signOut(),
-        _googleSignIn.signOut(),
-      ]);
+      await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
     } catch (e) {
       throw Exception('Sign out failed: $e');
     }

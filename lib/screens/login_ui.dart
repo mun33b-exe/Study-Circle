@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sign_in_button/sign_in_button.dart';
 import 'package:study_circle/constants/colors.dart';
 import 'package:study_circle/provider/authprovider.dart';
 
@@ -35,7 +34,9 @@ class _LoginState extends State<Login> {
 
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) return 'Please enter your email';
-    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
     if (!emailRegex.hasMatch(value)) return 'Please enter a valid email';
     return null;
   }
@@ -124,7 +125,9 @@ class _LoginState extends State<Login> {
                         });
                       },
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                         color: Colors.grey,
                         size: 20.0,
                       ),
@@ -189,11 +192,23 @@ class _LoginState extends State<Login> {
                                       passwordController.text,
                                     );
 
-                                    if (!success && mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                    if (success && mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Login successful!'),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
+                                    } else if (!success && mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         SnackBar(
                                           content: Text(
-                                            authProvider.errorMessage ?? 'Login failed',
+                                            authProvider.errorMessage ??
+                                                'Login failed',
                                           ),
                                           backgroundColor: Colors.red,
                                         ),
@@ -214,30 +229,6 @@ class _LoginState extends State<Login> {
                   },
                 ),
                 SizedBox(height: 20.0),
-                // Google Sign-In Button
-                Consumer<AuthProvider>(
-                  builder: (context, authProvider, _) {
-                    return Align(
-                      alignment: Alignment.center,
-                      child: SignInButton(
-                        Buttons.google,
-                        onPressed: () async {
-                          final success = await authProvider.signInWithGoogle();
-                          if (!success && mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  authProvider.errorMessage ?? 'Google sign-in failed',
-                                ),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    );
-                  },
-                ),
               ],
             ),
           ),

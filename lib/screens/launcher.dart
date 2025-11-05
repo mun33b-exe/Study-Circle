@@ -140,10 +140,7 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'Welcome, ${user.email}!',
-              style: TextStyle(fontSize: 18.sp),
-            ),
+            Text('Welcome, ${user.email}!', style: TextStyle(fontSize: 18.sp)),
             SizedBox(height: 20.h),
             ElevatedButton(
               onPressed: () async {

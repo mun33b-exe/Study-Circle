@@ -53,7 +53,9 @@ class _SignUpState extends State<SignUp> {
 
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) return 'Please enter your email';
-    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
     if (!emailRegex.hasMatch(value)) return 'Please enter a valid email';
     return null;
   }
@@ -78,11 +80,16 @@ class _SignUpState extends State<SignUp> {
   String? _validateSemester(String? value) {
     if (value == null || value.isEmpty) return 'Please enter your semester';
     final semester = int.tryParse(value);
-    if (semester == null || semester < 1 || semester > 8) return 'Please enter a valid semester (1-8)';
+    if (semester == null || semester < 1 || semester > 8)
+      return 'Please enter a valid semester (1-8)';
     return null;
   }
 
-  InputDecoration _buildInputDecoration(String label, String hint, {Widget? suffixIcon}) {
+  InputDecoration _buildInputDecoration(
+    String label,
+    String hint, {
+    Widget? suffixIcon,
+  }) {
     return InputDecoration(
       hintText: hint,
       labelText: label,
@@ -128,9 +135,21 @@ class _SignUpState extends State<SignUp> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Sign Up", style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold)),
+                  Text(
+                    "Sign Up",
+                    style: TextStyle(
+                      fontSize: 24.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   SizedBox(height: 10.h),
-                  Text("Enter Your Details", style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold)),
+                  Text(
+                    "Enter Your Details",
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   SizedBox(height: 30.h),
                   TextFormField(
                     controller: nameController,
@@ -138,7 +157,10 @@ class _SignUpState extends State<SignUp> {
                     cursorColor: Colors.black,
                     style: TextStyle(fontSize: 14.sp),
                     keyboardType: TextInputType.text,
-                    decoration: _buildInputDecoration("Name", "Enter your name"),
+                    decoration: _buildInputDecoration(
+                      "Name",
+                      "Enter your name",
+                    ),
                   ),
                   SizedBox(height: 20.h),
                   TextFormField(
@@ -147,7 +169,10 @@ class _SignUpState extends State<SignUp> {
                     cursorColor: Colors.black,
                     style: TextStyle(fontSize: 14.sp),
                     keyboardType: TextInputType.emailAddress,
-                    decoration: _buildInputDecoration("Email", "Enter your email"),
+                    decoration: _buildInputDecoration(
+                      "Email",
+                      "Enter your email",
+                    ),
                   ),
                   SizedBox(height: 20.h),
                   TextFormField(
@@ -156,7 +181,10 @@ class _SignUpState extends State<SignUp> {
                     cursorColor: Colors.black,
                     style: TextStyle(fontSize: 14.sp),
                     keyboardType: TextInputType.text,
-                    decoration: _buildInputDecoration("Department", "Enter your department"),
+                    decoration: _buildInputDecoration(
+                      "Department",
+                      "Enter your department",
+                    ),
                   ),
                   SizedBox(height: 20.h),
                   TextFormField(
@@ -165,7 +193,10 @@ class _SignUpState extends State<SignUp> {
                     cursorColor: Colors.black,
                     style: TextStyle(fontSize: 14.sp),
                     keyboardType: TextInputType.number,
-                    decoration: _buildInputDecoration("Semester", "Enter your semester"),
+                    decoration: _buildInputDecoration(
+                      "Semester",
+                      "Enter your semester",
+                    ),
                   ),
                   SizedBox(height: 20.h),
                   TextFormField(
@@ -179,8 +210,14 @@ class _SignUpState extends State<SignUp> {
                       "Password",
                       "Enter Password",
                       suffixIcon: IconButton(
-                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                        icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                        onPressed: () => setState(
+                          () => _obscurePassword = !_obscurePassword,
+                        ),
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                        ),
                       ),
                     ),
                   ),
@@ -196,8 +233,15 @@ class _SignUpState extends State<SignUp> {
                       "Confirm Password",
                       "Confirm Password",
                       suffixIcon: IconButton(
-                        onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
-                        icon: Icon(_obscureConfirmPassword ? Icons.visibility_off : Icons.visibility),
+                        onPressed: () => setState(
+                          () => _obscureConfirmPassword =
+                              !_obscureConfirmPassword,
+                        ),
+                        icon: Icon(
+                          _obscureConfirmPassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                        ),
                       ),
                     ),
                   ),
@@ -205,10 +249,22 @@ class _SignUpState extends State<SignUp> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Text("Already have account?", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                      Text(
+                        "Already have account?",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       TextButton(
                         onPressed: () => Navigator.pushNamed(context, '/login'),
-                        child: Text("Login", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                        child: Text(
+                          "Login",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -227,13 +283,17 @@ class _SignUpState extends State<SignUp> {
                           child: authProvider.isLoading
                               ? Center(
                                   child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(AppColors().baseColor),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      AppColors().baseColor,
+                                    ),
                                   ),
                                 )
                               : TextButton(
                                   onPressed: () async {
                                     if (_formKey.currentState!.validate()) {
-                                      final semester = int.parse(semesterController.text);
+                                      final semester = int.parse(
+                                        semesterController.text,
+                                      );
                                       final success = await authProvider.signUp(
                                         emailController.text.trim(),
                                         passwordController.text,
@@ -243,21 +303,38 @@ class _SignUpState extends State<SignUp> {
                                       );
 
                                       if (success && mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Sign up successful!')),
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Sign up successful!',
+                                            ),
+                                          ),
                                         );
                                         Navigator.pushNamed(context, '/login');
                                       } else if (mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           SnackBar(
-                                            content: Text(authProvider.errorMessage ?? 'Sign up failed'),
+                                            content: Text(
+                                              authProvider.errorMessage ??
+                                                  'Sign up failed',
+                                            ),
                                             backgroundColor: Colors.red,
                                           ),
                                         );
                                       }
                                     }
                                   },
-                                  child: Text("Sign Up", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                  child: Text(
+                                    "Sign Up",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
                         ),
                       );
