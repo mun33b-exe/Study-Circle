@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -80,8 +82,9 @@ class _SignUpState extends State<SignUp> {
   String? _validateSemester(String? value) {
     if (value == null || value.isEmpty) return 'Please enter your semester';
     final semester = int.tryParse(value);
-    if (semester == null || semester < 1 || semester > 8)
+    if (semester == null || semester < 1 || semester > 8) {
       return 'Please enter a valid semester (1-8)';
+    }
     return null;
   }
 
@@ -302,7 +305,8 @@ class _SignUpState extends State<SignUp> {
                                         semester,
                                       );
 
-                                      if (success && mounted) {
+                                      if (success) {
+                                        if (!mounted) return;
                                         ScaffoldMessenger.of(
                                           context,
                                         ).showSnackBar(
@@ -313,7 +317,8 @@ class _SignUpState extends State<SignUp> {
                                           ),
                                         );
                                         Navigator.pushNamed(context, '/login');
-                                      } else if (mounted) {
+                                      } else {
+                                        if (!mounted) return;
                                         ScaffoldMessenger.of(
                                           context,
                                         ).showSnackBar(
