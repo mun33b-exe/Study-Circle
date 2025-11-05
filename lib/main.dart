@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:study_circle/firebase_options.dart';
+import 'package:study_circle/models/user_model.dart';
 import 'package:study_circle/screens/launcher.dart';
 import 'package:study_circle/screens/sign_up.dart';
 import 'package:study_circle/screens/login_ui.dart';
@@ -43,6 +44,11 @@ void main() async {
           // Stream provider for auth state changes
           StreamProvider<User?>(
             create: (context) => context.read<Authservices>().authStateChanges,
+            initialData: null,
+          ),
+          // Stream provider for current user data
+          StreamProvider<UserModel?>(
+            create: (context) => context.read<AuthProvider>().currentUserStream,
             initialData: null,
           ),
         ],

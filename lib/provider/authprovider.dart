@@ -1,16 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:study_circle/models/user_model.dart';
 import 'package:study_circle/services/authservices.dart';
 
 /// AuthProvider manages authentication state and operations.
 /// Extends ChangeNotifier for reactive state management with Provider.
 class AuthProvider extends ChangeNotifier {
   final Authservices _authService;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   bool _isLoading = false;
   String? _errorMessage;
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+
+  /// Stream of current user data from Firestore
+  Stream<UserModel?> get currentUserStream {
+    final user = _auth.currentUser;
+    if (user == null) {
+      return Stream.value(null);
+    }
+
+    return _firestore.collection('users').doc(user.uid).snapshots().map((
+      snapshot,
+    ) {
+      if (snapshot.exists) {
+        return UserModel.fromMap(snapshot.data()!, snapshot.id);
+      }
+      return null;
+    });
+  }
 
   AuthProvider(this._authService);
 
@@ -117,6 +139,33 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       await _authService.signOut();
+      _setLoading(false);
+    } catch (e) {
+      _setError(e.toString());
+      _setLoading(false);
+    }
+  }
+
+  /// Update user profile information
+  Future<void> updateProfile(
+    String name,
+    String department,
+    int semester,
+  ) async {
+    _setLoading(true);
+    _setError(null);
+
+    try {
+      final uid = _auth.currentUser!.uid;
+
+      // Update profile in Firestore (without image for now)
+      await _authService.updateUserProfile(
+        uid,
+        name: name,
+        department: department,
+        semester: semester,
+      );
+
       _setLoading(false);
     } catch (e) {
       _setError(e.toString());

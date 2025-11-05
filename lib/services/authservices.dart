@@ -116,21 +116,26 @@ class Authservices {
   }
 
   /// Update user profile information
-  Future<void> updateUserProfile({
-    required String uid,
+  Future<void> updateUserProfile(
+    String uid, {
     required String name,
     required String department,
     required int semester,
-    String? profileImageUrl,
+    String? profileImageUrl, // This is optional
   }) async {
+    Map<String, dynamic> dataToUpdate = {
+      'name': name,
+      'department': department,
+      'semester': semester,
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+
+    if (profileImageUrl != null) {
+      dataToUpdate['profileImageUrl'] = profileImageUrl;
+    }
+
     try {
-      await _firestore.collection('users').doc(uid).update({
-        'name': name,
-        'department': department,
-        'semester': semester,
-        if (profileImageUrl != null) 'profileImageUrl': profileImageUrl,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+      await _firestore.collection('users').doc(uid).update(dataToUpdate);
     } catch (e) {
       throw Exception('Failed to update user profile: $e');
     }
