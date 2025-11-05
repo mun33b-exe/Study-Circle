@@ -20,9 +20,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
   final _description = TextEditingController();
   final _topics = TextEditingController();
   final _maxMembers = TextEditingController(text: '3');
-  final _schedule = TextEditingController();
+  DateTime? _selectedSchedule;
   final _location = TextEditingController();
   bool _isPublic = true;
+  bool _initialized = false;
 
   @override
   void dispose() {
@@ -32,7 +33,6 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     _description.dispose();
     _topics.dispose();
     _maxMembers.dispose();
-    _schedule.dispose();
     _location.dispose();
     super.dispose();
   }
@@ -48,8 +48,45 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     return null;
   }
 
+  Future<void> _pickSchedule() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: _selectedSchedule ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (date == null) return;
+
+    if (!mounted) return;
+    final time = await showTimePicker(
+      context: context,
+      initialTime: _selectedSchedule != null
+          ? TimeOfDay.fromDateTime(_selectedSchedule!)
+          : TimeOfDay.now(),
+    );
+    if (time == null) return;
+
+    setState(() {
+      _selectedSchedule = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        time.hour,
+        time.minute,
+      );
+    });
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (_selectedSchedule == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a meeting schedule')),
+      );
+      return;
+    }
+
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) {
       ScaffoldMessenger.of(
@@ -71,14 +108,14 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     final isEdit = existing != null && existing is StudyGroup;
 
     final StudyGroup group = StudyGroup(
-      id: isEdit ? (existing as StudyGroup).id : '',
+      id: isEdit ? existing.id : '',
       name: _name.text.trim(),
       courseName: _courseName.text.trim(),
       courseCode: _courseCode.text.trim(),
       description: _description.text.trim(),
       topics: topicsList,
       maxMembers: maxM,
-      schedule: _schedule.text.trim(),
+      schedule: _selectedSchedule!,
       location: _location.text.trim(),
       isPublic: _isPublic,
       creatorId: isEdit ? existing.creatorId : uid,
@@ -107,17 +144,19 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
   Widget build(BuildContext context) {
     final existing = ModalRoute.of(context)?.settings.arguments;
     final isEdit = existing != null && existing is StudyGroup;
-    if (isEdit) {
-      final g = existing as StudyGroup;
+
+    if (isEdit && !_initialized) {
+      final g = existing;
       _name.text = g.name;
       _courseName.text = g.courseName;
       _courseCode.text = g.courseCode;
       _description.text = g.description;
       _topics.text = g.topics.join(', ');
       _maxMembers.text = g.maxMembers.toString();
-      _schedule.text = g.schedule;
+      _selectedSchedule = g.schedule;
       _location.text = g.location;
       _isPublic = g.isPublic;
+      _initialized = true;
     }
 
     return Scaffold(
@@ -174,12 +213,22 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                 keyboardType: TextInputType.number,
               ),
               SizedBox(height: 8.h),
-              TextFormField(
-                controller: _schedule,
-                decoration: const InputDecoration(
-                  labelText: 'Meeting Schedule',
+              InkWell(
+                onTap: _pickSchedule,
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: 'Meeting Schedule',
+                    suffixIcon: Icon(Icons.calendar_today),
+                  ),
+                  child: Text(
+                    _selectedSchedule == null
+                        ? 'Tap to select date and time'
+                        : '${_selectedSchedule!.day}/${_selectedSchedule!.month}/${_selectedSchedule!.year} at ${_selectedSchedule!.hour.toString().padLeft(2, '0')}:${_selectedSchedule!.minute.toString().padLeft(2, '0')}',
+                    style: _selectedSchedule == null
+                        ? TextStyle(color: Colors.grey[600])
+                        : null,
+                  ),
                 ),
-                validator: _required,
               ),
               SizedBox(height: 8.h),
               TextFormField(
